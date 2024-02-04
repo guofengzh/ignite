@@ -145,7 +145,14 @@ public class CacheJtaManager extends CacheJtaManagerAdapter {
             }
         }
 
-        if (jtaTm != null) {
+        int status = 0;
+        try {
+            status = jtaTm.getStatus();
+        } catch (SystemException e) {
+            throw new IgniteCheckedException("Failed to get transaction status: " + e, e);
+        }
+
+        if (jtaTm != null && !(status == 3 || status == 4)) {
             CacheJtaResource rsrc = this.rsrc.get();
 
             if (rsrc == null || rsrc.isFinished() || rsrc.cacheTx().state() == SUSPENDED) {
